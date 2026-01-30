@@ -219,7 +219,7 @@ class ShellExtractor:
         )
         config_path = output_dir / "envelope_config.json"
         runner.write_config(config_payload, config_path)
-        runner.run(config_path)
+        runner.run(config_path, ifc_path)
 
         obj_path = runner.find_output_obj(output_dir)
         mesh = trimesh.load(obj_path, force="mesh")

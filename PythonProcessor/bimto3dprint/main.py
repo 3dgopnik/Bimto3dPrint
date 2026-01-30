@@ -65,7 +65,11 @@ def cli() -> None:
 @click.option("--scale", type=float, default=1.0, show_default=True)
 @click.option("--simplify", type=str, default=None)
 @click.option("--use-tudelft-extractor", is_flag=True, help="Use TU Delft envelope extractor")
-@click.option("--extractor-path", type=click.Path(path_type=Path))
+@click.option(
+    "--extractor-path",
+    type=click.Path(path_type=Path),
+    help="Path to TU Delft extractor exe or directory with multiple schema builds.",
+)
 @click.option("--lod", type=float, default=2.2, show_default=True)
 @click.option("--voxel", "voxel_size", type=float, default=1.0, show_default=True)
 @click.option("--threads", type=int, default=8, show_default=True)

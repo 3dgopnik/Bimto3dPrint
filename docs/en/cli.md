@@ -10,7 +10,7 @@ bimto3dprint process input.ifc \
   --output out/model.stl \
   --format stl \
   --use-tudelft-extractor \
-  --extractor-path /path/Ifc_Envelope_Extractor_ifc4.exe \
+  --extractor-path /path/to/tudelft_exe_dir \
   --lod 2.2 \
   --voxel 1.0 \
   --threads 8
@@ -44,7 +44,9 @@ The envelope from TU Delft is automatically normalized to millimeters; the unit 
 ## TU Delft IfcEnvelopeExtractor options
 
 - `--use-tudelft-extractor` — enable the external extractor.
-- `--extractor-path` — path to the schema-specific exe (IFC2x3/IFC4/IFC4x3).
+- `--extractor-path` — path to a schema-specific exe or a directory with multiple exes (IFC2x3/IFC4/IFC4x3).
+
+If a directory is provided, the CLI auto-selects the exe by IFC schema and logs the chosen file.
 - `--lod` — target LoD.
 - `--voxel` — voxel size.
 - `--threads` — number of threads.

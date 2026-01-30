@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TU Delft IfcEnvelopeExtractor integration with CLI support and real mesh exporters.
 - TU Delft extraction now validates mesh quality and auto-normalizes units to millimeters.
 - CLI controls for wall thickening and minimum wall thickness in millimeters.
+- IFC schema auto-detection for TU Delft extractor directory selection.
+- Unit detection smoke tests for mesh normalization.
 
 ### Changed
 - TU Delft extractor config now uses safe voxel/IFC/JSON defaults and stricter tolerances.
+- Mesh unit detection heuristic now avoids false millimeter scaling.
+- TU Delft OBJ selection now uses the newest generated file.
