@@ -23,6 +23,13 @@
 - Проверьте LoD и `--voxel`: слишком крупный шаг может дать пустую оболочку.
 - Перепроверьте, что исходный IFC содержит оболочку здания.
 
+## Ошибка про Revit preset в CLI
+
+Сообщение: `Revit preset contains BuiltInCategory.* and cannot be used with internal IFC extractor`.
+
+- Используйте `python:` пресет (например, `python:shell_only`) для внутреннего extractor.
+- Либо включите `--use-tudelft-extractor` и укажите `--extractor-path`.
+
 ## Масштаб модели выглядит неверным
 
 - Проверьте логи определения единиц (метры/миллиметры).

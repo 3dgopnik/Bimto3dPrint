@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "categories": {
+    "include": [
+      "IfcWall",
+      "IfcWallStandardCase",
+      "IfcCurtainWall",
+      "IfcSlab",
+      "IfcRoof",
+      "IfcCovering",
+      "IfcColumn",
+      "IfcBeam"
+    ],
+    "exclude": []
+  }
+}

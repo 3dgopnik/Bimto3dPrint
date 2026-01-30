@@ -2,14 +2,19 @@
 
 ## Revit plugin installation
 1. Build the `RevitPlugin` project in Release.
-2. Copy `Bimto3dPrint.addin` into your Revit Addins folder.
-3. Ensure `Bimto3dPrint.dll` sits next to the `.addin` file.
+2. `bin/Release` will contain a generated `Bimto3dPrint.addin` with the absolute DLL path.
+3. Copy into your Revit Addins folder:
+   - `Bimto3dPrint.dll`
+   - `Bimto3dPrint.addin`
+   - the `Config/Presets/Revit` folder
+4. Create `bimto3dprint.settings.json` next to the `.addin` (template: `RevitPlugin/bimto3dprint.settings.json.template`).
 
 ## Usage
 1. Open a Revit model.
 2. Run **Bimto3dPrint Export**.
-3. Choose a preset and output format.
-4. Run IFC export and post-processing.
+3. Choose a preset, IFC version, output folder, and output format.
+4. Enable **Run Python pipeline after export** if needed.
+5. Run IFC export and post-processing.
 
 > Screenshots will be added later (placeholders without binaries).
 

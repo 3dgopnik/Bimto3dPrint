@@ -2,14 +2,19 @@
 
 ## Установка плагина Revit
 1. Соберите проект `RevitPlugin` в Release.
-2. Скопируйте `Bimto3dPrint.addin` в папку Addins вашей версии Revit.
-3. Проверьте, что `Bimto3dPrint.dll` находится рядом с `.addin`.
+2. В `bin/Release` будет сгенерирован `Bimto3dPrint.addin` с абсолютным путём к DLL.
+3. Скопируйте в папку Addins вашей версии Revit:
+   - `Bimto3dPrint.dll`
+   - `Bimto3dPrint.addin`
+   - папку `Config/Presets/Revit`
+4. Создайте `bimto3dprint.settings.json` рядом с `.addin` (шаблон: `RevitPlugin/bimto3dprint.settings.json.template`).
 
 ## Использование
 1. Откройте модель Revit.
 2. Запустите команду **Bimto3dPrint Export**.
-3. Выберите пресет и формат вывода.
-4. Запустите экспорт IFC и последующую обработку.
+3. Выберите пресет, IFC версию, папку вывода и формат результата.
+4. При необходимости включите **Run Python pipeline after export**.
+5. Запустите экспорт IFC и последующую обработку.
 
 > Здесь будут добавлены скриншоты диалога (плейсхолдеры без бинарных файлов).
 

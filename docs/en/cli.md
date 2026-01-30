@@ -5,8 +5,15 @@
 ### Process IFC
 
 ```bash
+# Internal mode (python preset by default)
 bimto3dprint process input.ifc \
-  --preset shell_only \
+  --preset python:shell_only \
+  --output out/model.stl \
+  --format stl
+
+# TU Delft extractor (revit preset allowed)
+bimto3dprint process input.ifc \
+  --preset revit:shell_only \
   --output out/model.stl \
   --format stl \
   --use-tudelft-extractor \
@@ -28,10 +35,12 @@ bimto3dprint validate out/model.stl
 bimto3dprint list-presets
 ```
 
+Output includes `python:` and `revit:` prefixes to distinguish preset types.
+
 ## Core options
 
 - `process IFC_FILE` — path to the IFC file.
-- `--preset` — preset name from `Config/Presets` or a JSON path.
+- `--preset` — preset name from `Config/Presets/Python` (`python:`) or `Config/Presets/Revit` (`revit:`), or a JSON path.
 - `--output` — output file path.
 - `--format` — export format: `stl`, `obj`, `fbx`.
 - `--scale` — scale factor before export.
@@ -40,6 +49,8 @@ bimto3dprint list-presets
 - `--min-wall-mm` — minimum wall thickness during thickening (mm).
 
 The envelope from TU Delft is automatically normalized to millimeters; the unit decision is logged.
+
+If you select a `revit:` preset without `--use-tudelft-extractor`, the CLI fails with a hint to switch to a python preset or enable TU Delft.
 
 ## TU Delft IfcEnvelopeExtractor options
 

@@ -2,7 +2,7 @@
 <RevitAddIns>
   <AddIn Type="Command">
     <Name>Bimto3dPrint</Name>
-    <Assembly>RevitPlugin\Bimto3dPrint.dll</Assembly>
+    <Assembly>{{ASSEMBLY_PATH}}</Assembly>
     <AddInId>9b6f8d31-2a2d-4f9e-bfb7-82fbf031f1d5</AddInId>
     <FullClassName>Bimto3dPrint.Commands.ExportShellCommand</FullClassName>
     <VendorId>BIM3D</VendorId>

@@ -49,13 +49,16 @@
 ```
 
 ## Примечания
-- Категории должны соответствовать `BuiltInCategory`.
+- Пресеты делятся на два типа:
+  - `Config/Presets/Revit` — категории `BuiltInCategory.*` для Revit.
+  - `Config/Presets/Python` — типы IFC (`IfcWall`, `IfcRoof`, и т.д.) для внутреннего extractor.
 - `conditional_include` требует доп. фильтров по параметрам/геометрии.
 - Извлечённая оболочка автоматически приводится к миллиметрам; решение по единицам фиксируется в логах.
 
 ## Схемы и пресеты
 - Схемы: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
-- Пресеты: `Config/Presets/` (shell_only, shell_with_structure, full_exterior, simple_box).
+- Пресеты Revit: `Config/Presets/Revit` (shell_only, shell_with_structure, full_exterior, simple_box).
+- Пресеты Python: `Config/Presets/Python` (shell_only).
 
 ## Настройка TU Delft IfcEnvelopeExtractor
 

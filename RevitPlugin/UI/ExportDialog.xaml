@@ -1,7 +1,7 @@
 <Window x:Class="Bimto3dPrint.UI.ExportDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Bimto3dPrint Export" Height="420" Width="640">
+        Title="Bimto3dPrint Export" Height="520" Width="640">
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -14,8 +14,23 @@
         <StackPanel Grid.Row="1" Margin="0,12,0,12" Spacing="8">
             <TextBlock Text="Configuration preset" />
             <ComboBox x:Name="PresetComboBox" />
+            <TextBlock Text="IFC version" />
+            <ComboBox x:Name="IfcVersionComboBox" />
+            <TextBlock Text="Output folder" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="OutputFolderTextBox" Margin="0,0,8,0" />
+                <Button x:Name="BrowseButton" Grid.Column="1" Content="Browse..." Width="90" />
+            </Grid>
             <TextBlock Text="Output format" />
             <ComboBox x:Name="OutputFormatComboBox" />
+            <TextBlock Text="Minimum wall thickness (mm)" />
+            <TextBox x:Name="MinWallThicknessTextBox" />
+            <CheckBox x:Name="NoThickenCheckBox" Content="Skip wall thickening" />
+            <CheckBox x:Name="RunPipelineCheckBox" Content="Run Python pipeline after export" />
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
