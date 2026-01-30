@@ -14,13 +14,18 @@ authors = [
 ]
 
 dependencies = [
-  "ifcopenshell",
-  "trimesh",
-  "numpy",
-  "pymeshlab",
-  "click",
-  "pyyaml",
-  "loguru"
+  "ifcopenshell>=0.7.0",
+  "trimesh[easy]>=4.0.0",
+  "numpy>=1.24.0",
+  "pymeshlab>=2022.2",
+  "click>=8.1.0",
+  "pyyaml>=6.0",
+  "loguru>=0.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4.0"
 ]
 
 [project.scripts]

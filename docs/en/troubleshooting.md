@@ -24,6 +24,13 @@
 - Review LoD and `--voxel`: overly coarse voxel sizes can yield empty envelopes.
 - Ensure the source IFC contains the building envelope geometry.
 
+## Revit preset error in CLI
+
+Message: `Revit preset contains BuiltInCategory.* and cannot be used with internal IFC extractor`.
+
+- Use a `python:` preset (for example, `python:shell_only`) for the internal extractor.
+- Or enable `--use-tudelft-extractor` and provide `--extractor-path`.
+
 ## Model scale looks incorrect
 
 - Check the unit detection log (meters vs millimeters).

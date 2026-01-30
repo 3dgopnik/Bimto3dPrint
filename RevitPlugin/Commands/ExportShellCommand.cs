@@ -6,8 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.IFC;
 using Autodesk.Revit.UI;
+using Bimto3dPrint.Models;
 using Bimto3dPrint.Services;
 using Bimto3dPrint.UI;
 using Bimto3dPrint.Utils;
@@ -47,6 +47,7 @@ namespace Bimto3dPrint.Commands
                 var presets = LoadPresets();
                 dialog.LoadPresets(presets);
                 dialog.LoadOutputFormats(new[] { "stl", "obj", "fbx" });
+                dialog.LoadIfcVersions(new[] { "IFC4", "IFC2x3" });
 
                 var dialogResult = dialog.ShowDialog();
                 if (dialogResult != true)
@@ -57,6 +58,23 @@ namespace Bimto3dPrint.Commands
 
                 var preset = string.IsNullOrWhiteSpace(dialog.SelectedPreset) ? "shell_only" : dialog.SelectedPreset;
                 var outputFormat = string.IsNullOrWhiteSpace(dialog.SelectedOutputFormat) ? "stl" : dialog.SelectedOutputFormat;
+                var outputFolder = dialog.OutputFolder;
+
+                if (string.IsNullOrWhiteSpace(outputFolder))
+                {
+                    message = "Output folder is required.";
+                    Logger.Error(message);
+                    TaskDialog.Show("Bimto3dPrint", message);
+                    return Result.Failed;
+                }
+
+                if (dialog.MinWallThicknessMm <= 0)
+                {
+                    message = "Minimum wall thickness must be positive.";
+                    Logger.Error(message);
+                    TaskDialog.Show("Bimto3dPrint", message);
+                    return Result.Failed;
+                }
 
                 var view3D = ResolveExportView(document);
                 if (view3D == null)
@@ -67,7 +85,7 @@ namespace Bimto3dPrint.Commands
                     return Result.Failed;
                 }
 
-                var exportFolder = PrepareOutputFolder();
+                var exportFolder = outputFolder;
                 var exportFileName = BuildSafeFileName(document.Title);
                 var ifcPath = Path.Combine(exportFolder, $"{exportFileName}.ifc");
 
@@ -77,10 +95,23 @@ namespace Bimto3dPrint.Commands
                 {
                     progress.Show();
 
-                    var exportSucceeded = ExportIfc(document, view3D, exportFolder, exportFileName);
-                    if (!exportSucceeded)
+                    var exportSettings = new IfcExportSettings
                     {
-                        message = "IFC export failed. Please check Revit export settings.";
+                        IfcVersion = dialog.SelectedIfcVersion,
+                        FilterViewId = view3D.Id,
+                        ExportBaseQuantities = false,
+                        UseActiveViewGeometry = true,
+                        ExportLinkedFiles = false
+                    };
+
+                    try
+                    {
+                        var ifcService = new IfcExportService();
+                        ifcPath = ifcService.ExportIfc(document, exportFolder, exportFileName, exportSettings);
+                    }
+                    catch (Exception ex)
+                    {
+                        message = $"IFC export failed: {ex.Message}";
                         Logger.Error(message);
                         TaskDialog.Show("Bimto3dPrint", message);
                         return Result.Failed;
@@ -95,27 +126,56 @@ namespace Bimto3dPrint.Commands
                     return Result.Failed;
                 }
 
-                var pythonBridge = new PythonBridgeService();
-                var result = pythonBridge.CallPythonProcessor(ifcPath, preset, outputFormat);
-
-                if (result.Cancelled)
+                if (dialog.RunPipelineAfterExport)
                 {
-                    Logger.Warn("Python processing cancelled.");
-                    TaskDialog.Show("Bimto3dPrint", "Python processing was cancelled.");
-                    return Result.Cancelled;
+                    var outputPath = Path.Combine(exportFolder, $"{exportFileName}.{outputFormat}");
+                    var runner = new PythonRunner();
+                    var presetReference = $"revit:{preset}";
+
+                    if (!runner.Settings.UseTudelftExtractor && PresetUsesRevitCategories(preset))
+                    {
+                        message = "Selected preset uses BuiltInCategory.* and requires the TU Delft extractor.";
+                        Logger.Error(message);
+                        TaskDialog.Show("Bimto3dPrint", message);
+                        return Result.Failed;
+                    }
+
+                    var options = new PythonRunOptions
+                    {
+                        MinWallMm = dialog.MinWallThicknessMm,
+                        NoThicken = dialog.NoThicken
+                    };
+
+                    int exitCode;
+                    try
+                    {
+                        exitCode = runner.RunBimto3dPrint(ifcPath, presetReference, outputPath, outputFormat, options);
+                    }
+                    catch (Exception ex)
+                    {
+                        message = $"Python pipeline failed: {ex.Message}";
+                        Logger.Error(message);
+                        TaskDialog.Show("Bimto3dPrint", message);
+                        return Result.Failed;
+                    }
+
+                    if (exitCode != 0)
+                    {
+                        var errorMessage = $"Python pipeline failed (exit code {exitCode}). Log: {runner.LastLogPath}";
+                        Logger.Error(errorMessage);
+                        TaskDialog.Show("Bimto3dPrint", errorMessage);
+                        return Result.Failed;
+                    }
+
+                    var successMessage = $"Export completed. Output: {outputPath}\nLog: {runner.LastLogPath}";
+                    Logger.Info(successMessage);
+                    TaskDialog.Show("Bimto3dPrint", successMessage);
+                    return Result.Succeeded;
                 }
 
-                if (!result.Success)
-                {
-                    var errorMessage = $"Python processing failed: {result.Message}";
-                    Logger.Error(errorMessage);
-                    TaskDialog.Show("Bimto3dPrint", errorMessage);
-                    return Result.Failed;
-                }
-
-                var successMessage = $"Export completed. Output: {result.OutputPath}";
-                Logger.Info(successMessage);
-                TaskDialog.Show("Bimto3dPrint", successMessage);
+                var exportMessage = $"IFC export completed: {ifcPath}";
+                Logger.Info(exportMessage);
+                TaskDialog.Show("Bimto3dPrint", exportMessage);
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -132,7 +192,7 @@ namespace Bimto3dPrint.Commands
             try
             {
                 var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                var presetDirectory = Path.Combine(baseDirectory, "Config", "Presets");
+                var presetDirectory = Path.Combine(baseDirectory, "Config", "Presets", "Revit");
                 if (!Directory.Exists(presetDirectory))
                 {
                     return new[] { "shell_only" };
@@ -163,13 +223,6 @@ namespace Bimto3dPrint.Commands
                 .FirstOrDefault(view => !view.IsTemplate);
         }
 
-        private static string PrepareOutputFolder()
-        {
-            var exportFolder = Path.Combine(Path.GetTempPath(), "Bimto3dPrint");
-            Directory.CreateDirectory(exportFolder);
-            return exportFolder;
-        }
-
         private static string BuildSafeFileName(string name)
         {
             var invalid = Path.GetInvalidFileNameChars();
@@ -177,19 +230,26 @@ namespace Bimto3dPrint.Commands
             return string.IsNullOrWhiteSpace(safe) ? "bimto3dprint_export" : safe;
         }
 
-        private static bool ExportIfc(Document document, View3D view, string exportFolder, string fileName)
+        private static bool PresetUsesRevitCategories(string presetName)
         {
-            var options = new IFCExportOptions
+            try
             {
-                FileVersion = IFCVersion.IFC4,
-                FilterViewId = view.Id,
-                ExportBaseQuantities = false
-            };
+                var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                var presetDirectory = Path.Combine(baseDirectory, "Config", "Presets", "Revit");
+                var presetPath = Path.Combine(presetDirectory, $"{presetName}.json");
+                if (!File.Exists(presetPath))
+                {
+                    return false;
+                }
 
-            options.AddOption("SpaceBoundaries", "0");
-            options.AddOption("ExportInternalRevitPropertySets", "false");
-
-            return document.Export(exportFolder, fileName, options);
+                var content = File.ReadAllText(presetPath);
+                return content.Contains("BuiltInCategory.", StringComparison.Ordinal);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Failed to inspect preset categories: {ex.Message}");
+                return false;
+            }
         }
 
         private sealed class ProgressDialog : Window, IDisposable

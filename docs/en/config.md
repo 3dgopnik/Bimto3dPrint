@@ -49,13 +49,16 @@
 ```
 
 ## Notes
-- Categories must match `BuiltInCategory`.
+- Presets are split into two types:
+  - `Config/Presets/Revit` — `BuiltInCategory.*` categories for Revit.
+  - `Config/Presets/Python` — IFC types (`IfcWall`, `IfcRoof`, etc.) for the internal extractor.
 - `conditional_include` requires additional parameter/geometry filters.
 - Extracted envelopes are automatically normalized to millimeters; unit decisions are logged.
 
 ## Schemas and presets
 - Schemas: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
-- Presets: `Config/Presets/` (shell_only, shell_with_structure, full_exterior, simple_box).
+- Revit presets: `Config/Presets/Revit` (shell_only, shell_with_structure, full_exterior, simple_box).
+- Python presets: `Config/Presets/Python` (shell_only).
 
 ## TU Delft IfcEnvelopeExtractor settings
 

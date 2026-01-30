@@ -1,0 +1,7 @@
+{
+  "pythonExecutable": "C:\\Path\\To\\Python\\python.exe",
+  "bimto3dprintExecutable": "",
+  "bimto3dprintModule": "bimto3dprint.main",
+  "useTudelftExtractor": true,
+  "tudelftExtractorPath": "C:\\Path\\To\\Ifc_Envelope_Extractor_ifc4.exe"
+}

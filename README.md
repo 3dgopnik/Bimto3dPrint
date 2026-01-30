@@ -82,11 +82,14 @@ bimto3dprint --help
 
 **Ручная установка:**
 
-1. Собрать проект `RevitPlugin` в Visual Studio (см. документацию разработчика).
-2. Скопировать файлы:
-   - `Bimto3dPrint.dll` → `%APPDATA%\Autodesk\Revit\Addins\2024\`
-   - `Bimto3dPrint.addin` → `%APPDATA%\Autodesk\Revit\Addins\2024\`
-3. Перезапустить Revit
+1. Собрать проект `RevitPlugin` в Visual Studio (Release).
+2. В `RevitPlugin/bin/Release/` будет сгенерирован `Bimto3dPrint.addin` с абсолютным путём к DLL.
+3. Скопировать в `%APPDATA%\Autodesk\Revit\Addins\2024\`:
+   - `Bimto3dPrint.dll`
+   - `Bimto3dPrint.addin`
+   - папку `Config/Presets/Revit`
+4. Создать `bimto3dprint.settings.json` рядом с `.addin` (шаблон: `RevitPlugin/bimto3dprint.settings.json.template`).
+5. Перезапустить Revit
 
 #### Шаг 3: Проверка установки
 
@@ -98,6 +101,10 @@ bimto3dprint --help
 
 ### 🚀 Быстрый старт
 
+Два сценария использования:
+- **Manual IFC:** экспорт IFC из Revit → CLI `bimto3dprint process`.
+- **One‑click:** Revit plugin экспортирует IFC и (опционально) запускает пайплайн.
+
 #### Использование в Revit (GUI)
 
 **Сценарий 1: Простое использование**
@@ -106,11 +113,12 @@ bimto3dprint --help
 2. Нажмите кнопку **Bimto3dPrint**.
 3. В диалоге выберите:
    - **Пресет:** `shell_only`
+   - **IFC версия:** IFC4 или IFC2x3
+   - **Папка вывода:** папка для результата
    - **Формат вывода:** FBX или STL
-   - **Путь сохранения:** папка для результата
-4. Нажмите **Export**.
-5. Дождитесь завершения (индикатор прогресса).
-6. Откройте результат в 3ds Max или Bambu Studio.
+4. При необходимости включите **Run Python pipeline after export**.
+5. Нажмите **Export**.
+6. Дождитесь завершения и проверьте путь к результату в сообщении.
 
 **Сценарий 2: Настройка параметров**
 
@@ -130,15 +138,19 @@ bimto3dprint --help
 #### Использование через CLI
 
 ```bash
-# Базовое использование
+# Базовое использование (python-пресет по умолчанию)
 bimto3dprint process model.ifc --output building_shell.stl
 
-# С выбором пресета
-bimto3dprint process model.ifc --preset shell_only --output result.fbx --format fbx
+# С выбором python-пресета
+bimto3dprint process model.ifc --preset python:shell_only --output result.fbx --format fbx
+
+# Revit-пресет с TU Delft extractor
+bimto3dprint process model.ifc --preset revit:shell_only --output result.fbx --format fbx \
+  --use-tudelft-extractor --extractor-path /path/to/extractor.exe
 
 # С настройками
 bimto3dprint process model.ifc \
-  --preset shell_with_structure \
+  --preset python:shell_only \
   --output output.obj \
   --format obj \
   --scale 0.1 \
@@ -155,7 +167,11 @@ bimto3dprint list-presets
 
 ### 📖 Пресеты конфигурации
 
-Пресеты находятся в `Config/Presets/`:
+Пресеты разделены:
+- `Config/Presets/Revit` — BuiltInCategory.* (для Revit и TU Delft).
+- `Config/Presets/Python` — IFC-типы (для внутреннего extractor).
+
+**Revit‑пресеты:**
 
 | Пресет | Описание | Использование |
 | --- | --- | --- |
@@ -164,9 +180,13 @@ bimto3dprint list-presets
 | **full_exterior** | Внешние элементы (балконы, лестницы, козырьки) | Детальная модель |
 | **simple_box** | Максимальное упрощение | Концептуальная модель |
 
+**Python‑пресеты:**
+
+- `shell_only` — базовый набор IFC‑типов для внутреннего extractor.
+
 **Создание своего пресета:**
 
-1. Скопируйте любой JSON из `Config/Presets/`.
+1. Скопируйте любой JSON из `Config/Presets/Python` или `Config/Presets/Revit`.
 2. Измените настройки категорий.
 3. Сохраните с новым именем.
 4. Используйте: `--preset my_custom_preset`.
@@ -190,9 +210,10 @@ bimto3dprint list-presets
 
 **Проблема: пустой результат**
 
-1. Проверьте пресеты в `Config/Presets/`.
-2. Попробуйте `full_exterior`.
-3. Посмотрите логи: `%APPDATA%/Bimto3dPrint/logs/`.
+1. Проверьте пресеты в `Config/Presets/Python` и `Config/Presets/Revit`.
+2. Если используется revit-пресет, включите `--use-tudelft-extractor`.
+3. Попробуйте `full_exterior`.
+4. Посмотрите логи: `%APPDATA%/Bimto3dPrint/logs/`.
 
 **Проблема: модель не герметична (not watertight)**
 
@@ -342,11 +363,14 @@ bimto3dprint --help
 
 **Manual install:**
 
-1. Build the `RevitPlugin` project in Visual Studio (see developer docs).
-2. Copy the files:
-   - `Bimto3dPrint.dll` → `%APPDATA%\Autodesk\Revit\Addins\2024\`
-   - `Bimto3dPrint.addin` → `%APPDATA%\Autodesk\Revit\Addins\2024\`
-3. Restart Revit
+1. Build the `RevitPlugin` project in Visual Studio (Release).
+2. `RevitPlugin/bin/Release/` will contain a generated `Bimto3dPrint.addin` with the absolute DLL path.
+3. Copy into `%APPDATA%\Autodesk\Revit\Addins\2024\`:
+   - `Bimto3dPrint.dll`
+   - `Bimto3dPrint.addin`
+   - the `Config/Presets/Revit` folder
+4. Create `bimto3dprint.settings.json` next to the `.addin` (template: `RevitPlugin/bimto3dprint.settings.json.template`).
+5. Restart Revit
 
 #### Step 3: Verify installation
 
@@ -358,6 +382,10 @@ bimto3dprint --help
 
 ### 🚀 Quick start
 
+Two supported scenarios:
+- **Manual IFC:** export IFC from Revit → CLI `bimto3dprint process`.
+- **One-click:** Revit plugin exports IFC and (optionally) runs the pipeline.
+
 #### Using Revit (GUI)
 
 **Scenario 1: Simple workflow**
@@ -366,11 +394,12 @@ bimto3dprint --help
 2. Click **Bimto3dPrint**.
 3. Choose:
    - **Preset:** `shell_only`
+   - **IFC version:** IFC4 or IFC2x3
+   - **Output folder:** destination folder
    - **Output format:** FBX or STL
-   - **Output path:** destination folder
-4. Click **Export**.
-5. Wait for completion (progress bar).
-6. Open the result in 3ds Max or Bambu Studio.
+4. Enable **Run Python pipeline after export** if needed.
+5. Click **Export**.
+6. Wait for completion and check the output path in the message.
 
 **Scenario 2: Custom settings**
 
@@ -390,15 +419,19 @@ bimto3dprint --help
 #### Using CLI
 
 ```bash
-# Basic usage
+# Basic usage (python preset by default)
 bimto3dprint process model.ifc --output building_shell.stl
 
-# Using a preset
-bimto3dprint process model.ifc --preset shell_only --output result.fbx --format fbx
+# Using a python preset
+bimto3dprint process model.ifc --preset python:shell_only --output result.fbx --format fbx
+
+# Revit preset with TU Delft extractor
+bimto3dprint process model.ifc --preset revit:shell_only --output result.fbx --format fbx \
+  --use-tudelft-extractor --extractor-path /path/to/extractor.exe
 
 # With custom options
 bimto3dprint process model.ifc \
-  --preset shell_with_structure \
+  --preset python:shell_only \
   --output output.obj \
   --format obj \
   --scale 0.1 \
@@ -415,7 +448,11 @@ bimto3dprint list-presets
 
 ### 📖 Configuration presets
 
-Presets live in `Config/Presets/`:
+Presets are split into:
+- `Config/Presets/Revit` — BuiltInCategory.* (for Revit and TU Delft).
+- `Config/Presets/Python` — IFC types (for the internal extractor).
+
+**Revit presets:**
 
 | Preset | Description | Use case |
 | --- | --- | --- |
@@ -424,9 +461,13 @@ Presets live in `Config/Presets/`:
 | **full_exterior** | All exterior elements (balconies, stairs, canopies) | Detailed model |
 | **simple_box** | Maximum simplification | Conceptual models |
 
+**Python presets:**
+
+- `shell_only` — baseline IFC types for the internal extractor.
+
 **Create your own preset:**
 
-1. Copy any JSON from `Config/Presets/`.
+1. Copy any JSON from `Config/Presets/Python` or `Config/Presets/Revit`.
 2. Adjust category filters.
 3. Save with a new name.
 4. Use it via `--preset my_custom_preset`.
@@ -450,9 +491,10 @@ Presets live in `Config/Presets/`:
 
 **Problem: Empty export result**
 
-1. Review presets in `Config/Presets/`.
-2. Try the `full_exterior` preset.
-3. Check logs at `%APPDATA%/Bimto3dPrint/logs/`.
+1. Review presets in `Config/Presets/Python` and `Config/Presets/Revit`.
+2. If using a revit preset, enable `--use-tudelft-extractor`.
+3. Try the `full_exterior` preset.
+4. Check logs at `%APPDATA%/Bimto3dPrint/logs/`.
 
 **Problem: Model is not watertight**
 

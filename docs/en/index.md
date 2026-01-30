@@ -6,6 +6,7 @@ The project goal is to automatically extract **only the external architectural s
 - Supports the TU Delft IfcEnvelopeExtractor as an external engine (via `bimto3dprint process`).
 - After envelope extraction, units are normalized to millimeters, then the mesh is repaired (watertight), thickened, smoothed, and validated before export.
 - STL/OBJ/FBX exports are available.
+- Presets are split into Revit (`Config/Presets/Revit`) and Python (`Config/Presets/Python`) to avoid extractor mismatches.
 
 ## Stage 0: Revit structure analysis and category list
 

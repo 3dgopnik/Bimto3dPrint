@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace Bimto3dPrint.UI
 {
@@ -17,6 +20,10 @@ namespace Bimto3dPrint.UI
             InitializeComponent();
             CancelButton.Click += (_, __) => DialogResult = false;
             ExportButton.Click += (_, __) => DialogResult = true;
+            BrowseButton.Click += (_, __) => SelectOutputFolder();
+
+            OutputFolderTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            MinWallThicknessTextBox.Text = "2.0";
         }
 
         /// <summary>
@@ -28,6 +35,42 @@ namespace Bimto3dPrint.UI
         /// Gets the selected output format.
         /// </summary>
         public string SelectedOutputFormat => OutputFormatComboBox.SelectedItem as string ?? "stl";
+
+        /// <summary>
+        /// Gets the selected IFC version.
+        /// </summary>
+        public string SelectedIfcVersion => IfcVersionComboBox.SelectedItem as string ?? "IFC4";
+
+        /// <summary>
+        /// Gets the selected output folder.
+        /// </summary>
+        public string OutputFolder => OutputFolderTextBox.Text ?? string.Empty;
+
+        /// <summary>
+        /// Gets a value indicating whether to run the Python pipeline after export.
+        /// </summary>
+        public bool RunPipelineAfterExport => RunPipelineCheckBox.IsChecked == true;
+
+        /// <summary>
+        /// Gets a value indicating whether wall thickening should be skipped.
+        /// </summary>
+        public bool NoThicken => NoThickenCheckBox.IsChecked == true;
+
+        /// <summary>
+        /// Gets the minimum wall thickness in millimeters.
+        /// </summary>
+        public double MinWallThicknessMm
+        {
+            get
+            {
+                if (double.TryParse(MinWallThicknessTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+                {
+                    return value;
+                }
+
+                return 2.0;
+            }
+        }
 
         /// <summary>
         /// Loads available presets into the dialog.
@@ -49,6 +92,30 @@ namespace Bimto3dPrint.UI
                             ?? new List<string>();
             OutputFormatComboBox.ItemsSource = formatList;
             OutputFormatComboBox.SelectedIndex = formatList.Count > 0 ? 0 : -1;
+        }
+
+        /// <summary>
+        /// Loads available IFC versions into the dialog.
+        /// </summary>
+        public void LoadIfcVersions(IEnumerable<string> versions)
+        {
+            var versionList = versions?.Where(version => !string.IsNullOrWhiteSpace(version)).ToList()
+                              ?? new List<string>();
+            IfcVersionComboBox.ItemsSource = versionList;
+            IfcVersionComboBox.SelectedIndex = versionList.Count > 0 ? 0 : -1;
+        }
+
+        private void SelectOutputFolder()
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.SelectedPath = OutputFolderTextBox.Text;
+                var result = dialog.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    OutputFolderTextBox.Text = dialog.SelectedPath;
+                }
+            }
         }
     }
 }

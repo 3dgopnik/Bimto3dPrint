@@ -8,7 +8,7 @@ import click
 import trimesh
 from loguru import logger
 
-from bimto3dprint.config import load_config
+from bimto3dprint.config import ConfigManager
 from bimto3dprint.exporters.fbx_exporter import FBXExporter
 from bimto3dprint.exporters.obj_exporter import OBJExporter
 from bimto3dprint.exporters.stl_exporter import STLExporter
@@ -17,21 +17,10 @@ from bimto3dprint.processors.shell_extractor import ShellExtractor
 from bimto3dprint.utils.logger import get_logger
 from bimto3dprint.utils.units import normalize_to_millimeters
 
-PRESETS_DIR = Path("Config") / "Presets"
-
-
-def _load_preset(preset: str) -> dict[str, Any]:
-    preset_path = Path(preset)
-    if preset_path.exists():
-        logger.info("Loading preset from path: {}", preset_path)
-        return load_config(preset_path)
-
-    preset_path = PRESETS_DIR / f"{preset}.json"
-    if not preset_path.exists():
-        raise FileNotFoundError(f"Preset not found: {preset}")
-
-    logger.info("Loading preset: {}", preset_path)
-    return load_config(preset_path)
+PRESET_ERROR_MESSAGE = (
+    "Revit preset contains BuiltInCategory.* and cannot be used with internal IFC extractor. "
+    "Use --use-tudelft-extractor or choose a python preset."
+)
 
 
 def _select_exporter(fmt: str):
@@ -93,7 +82,14 @@ def process_command(
     """Process an IFC file and export a printable mesh."""
     logger.info("Starting IFC processing for {}", ifc_file)
 
-    config = _load_preset(preset)
+    manager = ConfigManager()
+    preset_type = _resolve_preset_type(preset)
+    config = manager.load_preset(preset)
+    if not use_tudelft_extractor and _contains_revit_categories(config):
+        raise click.UsageError(PRESET_ERROR_MESSAGE)
+    if preset_type == "revit" and not use_tudelft_extractor:
+        raise click.UsageError(PRESET_ERROR_MESSAGE)
+
     if use_tudelft_extractor:
         if extractor_path is None:
             raise click.UsageError("--extractor-path is required with --use-tudelft-extractor")
@@ -167,13 +163,31 @@ def validate_command(mesh_file: Path) -> None:
 @cli.command("list-presets")
 def list_presets_command() -> None:
     """List available preset names."""
-    presets = sorted(PRESETS_DIR.glob("*.json"))
+    manager = ConfigManager()
+    presets = manager.get_available_presets()
     if not presets:
-        logger.warning("No presets found in {}", PRESETS_DIR)
+        logger.warning("No presets found in {}", manager.config_dir)
         return
 
-    for preset_path in presets:
-        click.echo(preset_path.stem)
+    for preset in presets:
+        click.echo(preset)
+
+
+def _resolve_preset_type(preset: str) -> str:
+    preset_path = Path(preset)
+    if preset_path.exists():
+        return "path"
+    if ":" in preset:
+        prefix, _ = preset.split(":", 1)
+        if prefix in {"python", "revit"}:
+            return prefix
+    return "python"
+
+
+def _contains_revit_categories(config: dict[str, Any]) -> bool:
+    categories = config.get("categories", {})
+    include = categories.get("include", [])
+    return any(str(item).startswith("BuiltInCategory.") for item in include)
 
 
 if __name__ == "__main__":

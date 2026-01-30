@@ -5,8 +5,15 @@
 ### Обработка IFC
 
 ```bash
+# Внутренний режим (python-пресет по умолчанию)
 bimto3dprint process input.ifc \
-  --preset shell_only \
+  --preset python:shell_only \
+  --output out/model.stl \
+  --format stl
+
+# TU Delft extractor (можно использовать revit-пресет)
+bimto3dprint process input.ifc \
+  --preset revit:shell_only \
   --output out/model.stl \
   --format stl \
   --use-tudelft-extractor \
@@ -28,10 +35,12 @@ bimto3dprint validate out/model.stl
 bimto3dprint list-presets
 ```
 
+Вывод включает префиксы `python:` и `revit:` для различения типов пресетов.
+
 ## Основные параметры
 
 - `process IFС_FILE` — путь к IFC файлу.
-- `--preset` — имя пресета из `Config/Presets` или путь к JSON.
+- `--preset` — имя пресета из `Config/Presets/Python` (`python:`) или `Config/Presets/Revit` (`revit:`), либо путь к JSON.
 - `--output` — путь к файлу результата.
 - `--format` — формат экспорта: `stl`, `obj`, `fbx`.
 - `--scale` — коэффициент масштабирования перед экспортом.
@@ -40,6 +49,8 @@ bimto3dprint list-presets
 - `--min-wall-mm` — минимальная толщина стен при утолщении (в мм).
 
 Оболочка, полученная из TU Delft, автоматически приводится к миллиметрам; решение по единицам логируется.
+
+Если указан `revit:` пресет без `--use-tudelft-extractor`, CLI завершится ошибкой с подсказкой выбрать python-пресет или включить TU Delft.
 
 ## Параметры TU Delft IfcEnvelopeExtractor
 
