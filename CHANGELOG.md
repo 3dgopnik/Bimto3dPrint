@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Revit built-in categories reference and user guide drafts.
 - Configuration schemas and presets for export pipeline.
 - C# Revit plugin and Python processor scaffolding.
+- Revit export command now launches IFC export and Python processing via the new bridge service.
 - Pipeline runner script and test scenario descriptions.
 - IFC_BuildingEnvExtractor analysis reference and shell extraction implementation.
 - IFC loader utilities and mesh optimizer workflow for the Python processor.
