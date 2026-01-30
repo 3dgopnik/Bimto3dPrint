@@ -1,0 +1,26 @@
+name: Idea
+description: Предложить идею или улучшение
+title: "idea: "
+labels: ["idea"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Краткое описание идеи и цели.
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Зачем это нужно и какую проблему решает.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Затрагиваемые компоненты и ограничения.
+    validations:
+      required: true
