@@ -13,6 +13,11 @@
 
 > Screenshots will be added later (placeholders without binaries).
 
+## Python processor
+Helper classes are available in the pipeline:
+- `IFCLoader` — load IFC files and filter elements by category.
+- `MeshOptimizer` — prepare meshes for 3D printing (shell, thickening, smoothing, validation).
+
 ## Settings
 - Categories: included/excluded shell categories.
 - Simplification: target triangle count and tolerances.
