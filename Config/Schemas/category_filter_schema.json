@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bimto3dprint.local/schemas/category_filter_schema.json",
+  "title": "Category Filter Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "categories"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version (SemVer)."
+    },
+    "categories": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["include", "exclude"],
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "BuiltInCategory enum names to include."
+        },
+        "exclude": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "BuiltInCategory enum names to exclude."
+        }
+      }
+    },
+    "parameterFilters": {
+      "type": "array",
+      "description": "Filters by element parameters.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["parameter", "operator", "value"],
+        "properties": {
+          "parameter": {"type": "string"},
+          "operator": {
+            "type": "string",
+            "enum": ["equals", "not_equals", "contains", "greater", "less", "in", "not_in"]
+          },
+          "value": {},
+          "caseSensitive": {"type": "boolean", "default": false}
+        }
+      }
+    },
+    "geometryRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "minVolume": {"type": "number", "minimum": 0},
+        "minArea": {"type": "number", "minimum": 0},
+        "skipZeroThickness": {"type": "boolean", "default": true}
+      }
+    }
+  }
+}

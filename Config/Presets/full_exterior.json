@@ -1,0 +1,57 @@
+{
+  "version": "0.1.0",
+  "categories": {
+    "include": [
+      "BuiltInCategory.OST_Walls",
+      "BuiltInCategory.OST_Roofs",
+      "BuiltInCategory.OST_Floors",
+      "BuiltInCategory.OST_CurtainWallPanels",
+      "BuiltInCategory.OST_CurtainWallMullions",
+      "BuiltInCategory.OST_Stairs",
+      "BuiltInCategory.OST_Ramps",
+      "BuiltInCategory.OST_Railings",
+      "BuiltInCategory.OST_StructuralColumns",
+      "BuiltInCategory.OST_StructuralFraming",
+      "BuiltInCategory.OST_StructuralWall",
+      "BuiltInCategory.OST_StructuralFloor",
+      "BuiltInCategory.OST_Site",
+      "BuiltInCategory.OST_Topography"
+    ],
+    "exclude": [
+      "BuiltInCategory.OST_Furniture",
+      "BuiltInCategory.OST_PlumbingFixtures",
+      "BuiltInCategory.OST_MechanicalEquipment",
+      "BuiltInCategory.OST_LightingFixtures",
+      "BuiltInCategory.OST_Entourage"
+    ]
+  },
+  "parameterFilters": [],
+  "geometryRules": {
+    "minVolume": 0.005,
+    "minArea": 0.02,
+    "skipZeroThickness": true
+  },
+  "export": {
+    "ifc": {
+      "fileName": "full_exterior.ifc",
+      "exportBaseQuantities": true,
+      "ifcVersion": "IFC4",
+      "useActiveViewGeometry": true,
+      "exportLinkedFiles": true
+    },
+    "simplification": {
+      "targetTriangleCount": 250000,
+      "maxDeviation": 0.02,
+      "mergeCoplanarFaces": true,
+      "removeSmallParts": true,
+      "minPartVolume": 0.0005
+    },
+    "printing": {
+      "scale": 0.01,
+      "wallThickness": 1.2,
+      "minFeatureSize": 0.6,
+      "hollow": true,
+      "outputFormat": "obj"
+    }
+  }
+}

@@ -51,3 +51,7 @@
 ## Примечания
 - Категории должны соответствовать `BuiltInCategory`.
 - `conditional_include` требует доп. фильтров по параметрам/геометрии.
+
+## Схемы и пресеты
+- Схемы: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
+- Пресеты: `Config/Presets/` (shell_only, shell_with_structure, full_exterior, simple_box).

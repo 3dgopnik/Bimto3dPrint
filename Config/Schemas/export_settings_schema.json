@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bimto3dprint.local/schemas/export_settings_schema.json",
+  "title": "Export Settings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "ifc", "simplification", "printing"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version (SemVer)."
+    },
+    "ifc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fileName", "exportBaseQuantities"],
+      "properties": {
+        "fileName": {"type": "string"},
+        "exportBaseQuantities": {"type": "boolean"},
+        "ifcVersion": {
+          "type": "string",
+          "enum": ["IFC2x3", "IFC4", "IFC4x1", "IFC4x3"],
+          "default": "IFC4"
+        },
+        "splitWallsAndColumns": {"type": "boolean", "default": true},
+        "useActiveViewGeometry": {"type": "boolean", "default": true},
+        "exportLinkedFiles": {"type": "boolean", "default": false}
+      }
+    },
+    "simplification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetTriangleCount"],
+      "properties": {
+        "targetTriangleCount": {"type": "integer", "minimum": 1000},
+        "maxDeviation": {"type": "number", "minimum": 0},
+        "mergeCoplanarFaces": {"type": "boolean", "default": true},
+        "removeSmallParts": {"type": "boolean", "default": true},
+        "minPartVolume": {"type": "number", "minimum": 0}
+      }
+    },
+    "printing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scale", "wallThickness"],
+      "properties": {
+        "scale": {"type": "number", "exclusiveMinimum": 0},
+        "wallThickness": {"type": "number", "exclusiveMinimum": 0},
+        "minFeatureSize": {"type": "number", "minimum": 0},
+        "hollow": {"type": "boolean", "default": true},
+        "outputFormat": {
+          "type": "string",
+          "enum": ["stl", "obj", "fbx"],
+          "default": "stl"
+        }
+      }
+    }
+  }
+}

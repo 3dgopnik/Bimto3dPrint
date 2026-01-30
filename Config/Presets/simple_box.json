@@ -1,0 +1,45 @@
+{
+  "version": "0.1.0",
+  "categories": {
+    "include": [
+      "BuiltInCategory.OST_Walls",
+      "BuiltInCategory.OST_Roofs",
+      "BuiltInCategory.OST_Floors"
+    ],
+    "exclude": [
+      "BuiltInCategory.OST_Doors",
+      "BuiltInCategory.OST_Windows",
+      "BuiltInCategory.OST_CurtainWallPanels",
+      "BuiltInCategory.OST_CurtainWallMullions"
+    ]
+  },
+  "parameterFilters": [],
+  "geometryRules": {
+    "minVolume": 0.05,
+    "minArea": 0.1,
+    "skipZeroThickness": true
+  },
+  "export": {
+    "ifc": {
+      "fileName": "simple_box.ifc",
+      "exportBaseQuantities": false,
+      "ifcVersion": "IFC4",
+      "useActiveViewGeometry": true,
+      "exportLinkedFiles": false
+    },
+    "simplification": {
+      "targetTriangleCount": 50000,
+      "maxDeviation": 0.05,
+      "mergeCoplanarFaces": true,
+      "removeSmallParts": true,
+      "minPartVolume": 0.01
+    },
+    "printing": {
+      "scale": 0.02,
+      "wallThickness": 1.5,
+      "minFeatureSize": 1.0,
+      "hollow": false,
+      "outputFormat": "stl"
+    }
+  }
+}
