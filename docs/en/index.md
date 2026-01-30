@@ -2,6 +2,11 @@
 
 The project goal is to automatically extract **only the external architectural shell** from Revit, prepare it for 3D printing (Bambu Lab H2S), and export it to 3ds Max.
 
+## Current pipeline
+- Supports the TU Delft IfcEnvelopeExtractor as an external engine (via `bimto3dprint process`).
+- After envelope extraction, the mesh is repaired (watertight), thickened, smoothed, and validated before export.
+- STL/OBJ/FBX exports are available.
+
 ## Stage 0: Revit structure analysis and category list
 
 ### Typical Revit project structure
@@ -54,5 +59,9 @@ Below is the baseline category list for filtering. It should be refined per proj
 - **Environment**: elements that interface with external spaces.
 
 ## Documentation
+- [Quickstart](quickstart.md)
+- [CLI](cli.md)
+- [Configuration](config.md)
+- [Troubleshooting](troubleshooting.md)
 - [Built-In categories reference](reference/revit_builtin_categories.md)
 - [User guide](user_guide.md)

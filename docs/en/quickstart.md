@@ -1,9 +1,19 @@
 # Quickstart
 
-> This section will be updated once the base pipeline is implemented.
+## Steps
 
-Planned flow:
-1. Run the Revit plugin and select the shell filtering preset.
-2. Export IFC from the prepared 3D view.
-3. Run the Python processor for cleanup and print preparation.
-4. Open the final file in 3ds Max.
+1. Install Python Processor dependencies (see `PythonProcessor/README.md`).
+2. Export an IFC file from Revit.
+3. Ensure you have the correct TU Delft extractor exe for your IFC schema.
+4. Run the pipeline:
+
+```bash
+bimto3dprint process input.ifc \
+  --preset shell_only \
+  --output out/model.stl \
+  --format stl \
+  --use-tudelft-extractor \
+  --extractor-path /path/Ifc_Envelope_Extractor_ifc4.exe
+```
+
+5. Review the validation report in logs and open the output in your printing tool.

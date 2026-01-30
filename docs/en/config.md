@@ -49,9 +49,26 @@
 ```
 
 ## Notes
-- Category names must match `BuiltInCategory`.
-- `conditional_include` requires parameter/geometry filters.
+- Categories must match `BuiltInCategory`.
+- `conditional_include` requires additional parameter/geometry filters.
 
 ## Schemas and presets
 - Schemas: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
 - Presets: `Config/Presets/` (shell_only, shell_with_structure, full_exterior, simple_box).
+
+## TU Delft IfcEnvelopeExtractor settings
+
+When using the CLI you can add a `tudelft_extractor` block to the configuration:
+
+```json
+{
+  "tudelft_extractor": {
+    "extractor_path": "/path/Ifc_Envelope_Extractor_ifc4.exe",
+    "lod": 2.2,
+    "voxel_size": 1.0,
+    "threads": 8
+  }
+}
+```
+
+The `extractor_path` must point to the exe that matches the IFC schema (IFC2x3 / IFC4 / IFC4x3).

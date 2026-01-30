@@ -55,3 +55,20 @@
 ## Схемы и пресеты
 - Схемы: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
 - Пресеты: `Config/Presets/` (shell_only, shell_with_structure, full_exterior, simple_box).
+
+## Настройка TU Delft IfcEnvelopeExtractor
+
+При использовании CLI можно добавить блок `tudelft_extractor` в конфигурацию:
+
+```json
+{
+  "tudelft_extractor": {
+    "extractor_path": "/path/Ifc_Envelope_Extractor_ifc4.exe",
+    "lod": 2.2,
+    "voxel_size": 1.0,
+    "threads": 8
+  }
+}
+```
+
+Опция `extractor_path` должна указывать на exe, соответствующий схеме IFC (IFC2x3 / IFC4 / IFC4x3).
