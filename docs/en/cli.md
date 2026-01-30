@@ -36,6 +36,10 @@ bimto3dprint list-presets
 - `--format` — export format: `stl`, `obj`, `fbx`.
 - `--scale` — scale factor before export.
 - `--simplify` — simplification level (`low`, `medium`, `high`) or ratio (0–1).
+- `--no-thicken` — disable wall thickening entirely.
+- `--min-wall-mm` — minimum wall thickness during thickening (mm).
+
+The envelope from TU Delft is automatically normalized to millimeters; the unit decision is logged.
 
 ## TU Delft IfcEnvelopeExtractor options
 

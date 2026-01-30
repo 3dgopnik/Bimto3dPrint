@@ -16,4 +16,5 @@ bimto3dprint process input.ifc \
   --extractor-path /path/Ifc_Envelope_Extractor_ifc4.exe
 ```
 
-5. Review the validation report in logs and open the output in your printing tool.
+5. Adjust wall thickening if needed (`--min-wall-mm` or `--no-thicken`).
+6. Review the validation report in logs (including unit detection) and open the output in your printing tool.

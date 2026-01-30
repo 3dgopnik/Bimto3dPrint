@@ -16,3 +16,14 @@
 
 - Verify that the OBJ file exists in the output directory.
 - Ensure the model produced non-empty geometry.
+
+## "TU Delft extractor returned invalid mesh"
+
+- Confirm the extractor exe matches the IFC schema.
+- Review LoD and `--voxel`: overly coarse voxel sizes can yield empty envelopes.
+- Ensure the source IFC contains the building envelope geometry.
+
+## Model scale looks incorrect
+
+- Check the unit detection log (meters vs millimeters).
+- Make sure `--scale` is not applied twice.

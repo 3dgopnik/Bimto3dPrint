@@ -15,6 +15,7 @@ from bimto3dprint.exporters.stl_exporter import STLExporter
 from bimto3dprint.processors.mesh_optimizer import MeshOptimizer
 from bimto3dprint.processors.shell_extractor import ShellExtractor
 from bimto3dprint.utils.logger import get_logger
+from bimto3dprint.utils.units import normalize_to_millimeters
 
 PRESETS_DIR = Path("Config") / "Presets"
 
@@ -68,6 +69,8 @@ def cli() -> None:
 @click.option("--lod", type=float, default=2.2, show_default=True)
 @click.option("--voxel", "voxel_size", type=float, default=1.0, show_default=True)
 @click.option("--threads", type=int, default=8, show_default=True)
+@click.option("--no-thicken", is_flag=True, help="Skip wall thickening step")
+@click.option("--min-wall-mm", type=float, default=2.0, show_default=True)
 def process_command(
     ifc_file: Path,
     preset: str,
@@ -80,6 +83,8 @@ def process_command(
     lod: float,
     voxel_size: float,
     threads: int,
+    no_thicken: bool,
+    min_wall_mm: float,
 ) -> None:
     """Process an IFC file and export a printable mesh."""
     logger.info("Starting IFC processing for {}", ifc_file)
@@ -99,6 +104,8 @@ def process_command(
 
     extractor = ShellExtractor()
     mesh = extractor.extract_from_ifc(ifc_file, config)
+    mesh, unit_scale_factor = normalize_to_millimeters(mesh)
+    mesh_units = "meters" if unit_scale_factor == 1000.0 else "millimeters"
 
     if simplify:
         logger.info("Applying simplification level: {}", simplify)
@@ -110,14 +117,30 @@ def process_command(
         logger.info("Scaling mesh by factor {:.3f}", scale)
         mesh.apply_scale(scale)
 
+    if min_wall_mm <= 0:
+        raise click.UsageError("--min-wall-mm must be positive")
+
     optimizer = MeshOptimizer()
     mesh = optimizer.ensure_watertight(mesh)
-    mesh = optimizer.thicken_walls(mesh)
+    if no_thicken:
+        logger.info("Wall thickening skipped")
+    else:
+        logger.info("Wall thickening applied: {:.2f} mm", min_wall_mm)
+        mesh = optimizer.thicken_walls(mesh, min_thickness_mm=min_wall_mm)
     mesh = optimizer.smooth_surface(mesh)
     report = optimizer.validate_for_printing(mesh)
 
     exporter = _select_exporter(output_format)
-    exporter.export(mesh, output_path, metadata={"report": report})
+    exporter.export(
+        mesh,
+        output_path,
+        metadata={
+            "report": report,
+            "mesh_units": mesh_units,
+            "unit_scale_factor": unit_scale_factor,
+            "user_scale_factor": scale,
+        },
+    )
 
     logger.info("Validation report: {}", report)
     logger.info("Processing completed")
