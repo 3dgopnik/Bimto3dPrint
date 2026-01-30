@@ -225,5 +225,22 @@ class ShellExtractor:
         mesh = trimesh.load(obj_path, force="mesh")
         if not isinstance(mesh, trimesh.Trimesh):  # pragma: no cover - defensive
             raise ValueError(f"Extractor output is not a mesh: {obj_path}")
+        extents = np.array(mesh.extents, dtype=float)
+        extents_valid = (
+            extents.shape == (3,)
+            and np.all(np.isfinite(extents))
+            and np.all(extents > 0)
+        )
+        if mesh.is_empty or len(mesh.faces) <= 100 or not extents_valid:
+            logger.error(
+                "Invalid TU Delft mesh detected (empty={}, faces={}, extents={})",
+                mesh.is_empty,
+                len(mesh.faces),
+                extents,
+            )
+            raise RuntimeError(
+                "TU Delft extractor returned invalid mesh. "
+                "Check IFC schema, LoD, voxel size, or extractor executable."
+            )
         logger.info("Loaded TU Delft envelope mesh: vertices={}, faces={}", len(mesh.vertices), len(mesh.faces))
         return mesh

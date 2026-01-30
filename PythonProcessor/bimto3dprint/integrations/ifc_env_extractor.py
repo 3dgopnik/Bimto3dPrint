@@ -54,6 +54,13 @@ class IfcEnvExtractorRunner:
         output_dir = Path(output_dir)
         lods = lods or [2.2]
 
+        logger.info(
+            "TU Delft extractor settings: lods={}, voxel_size={}, exe_path={}, output_dir={}",
+            lods,
+            voxel_size,
+            self.extractor_path,
+            output_dir,
+        )
         config: dict[str, Any] = {
             "Filepaths": {
                 "Input": [str(ifc_path)],
@@ -61,20 +68,31 @@ class IfcEnvExtractorRunner:
                 "Report": str(output_dir / "envelope_report.json"),
             },
             "LoD output": lods,
-            "Voxel": {"Size": float(voxel_size)},
-            "IFC": {},
+            "Voxel": {
+                "Size": float(voxel_size),
+                "Store values": 0,
+                "Logic": 3,
+                "Coarse filter": True,
+            },
+            "IFC": {
+                "Ignore proxy": True,
+                "Simplify geometry": True,
+                "Correct placement": True,
+            },
             "JSON": {
                 "Generate exterior": int(generate_exterior),
                 "Generate interior": int(generate_interior),
+                "Generate footprint": 0,
+                "Generate roof outline": 0,
             },
             "Output format": {
                 "OBJ file": int(output_obj),
                 "STEP file": int(output_step),
             },
             "Tolerances": {
-                "Spatial": 0.01,
-                "Angular": 1.0,
-                "Area": 0.01,
+                "Spatial": 1e-6,
+                "Angular": 1e-4,
+                "Area": 1e-4,
             },
             "Generate report": 1,
             "Threads": int(threads),

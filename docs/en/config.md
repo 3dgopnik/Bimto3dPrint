@@ -51,6 +51,7 @@
 ## Notes
 - Categories must match `BuiltInCategory`.
 - `conditional_include` requires additional parameter/geometry filters.
+- Extracted envelopes are automatically normalized to millimeters; unit decisions are logged.
 
 ## Schemas and presets
 - Schemas: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
@@ -72,3 +73,10 @@ When using the CLI you can add a `tudelft_extractor` block to the configuration:
 ```
 
 The `extractor_path` must point to the exe that matches the IFC schema (IFC2x3 / IFC4 / IFC4x3).
+
+## Wall thickening control
+
+Wall thickening is configured via CLI:
+
+- `--min-wall-mm` — minimum wall thickness (mm).
+- `--no-thicken` — disable thickening entirely.

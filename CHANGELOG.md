@@ -16,3 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - IFC loader utilities and mesh optimizer workflow for the Python processor.
 - IFC loader now supports include/exclude categories and improved mesh thickness estimation.
 - TU Delft IfcEnvelopeExtractor integration with CLI support and real mesh exporters.
+- TU Delft extraction now validates mesh quality and auto-normalizes units to millimeters.
+- CLI controls for wall thickening and minimum wall thickness in millimeters.
+
+### Changed
+- TU Delft extractor config now uses safe voxel/IFC/JSON defaults and stricter tolerances.

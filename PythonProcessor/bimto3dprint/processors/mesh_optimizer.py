@@ -74,6 +74,7 @@ class MeshOptimizer:
         if voxel_pitch is not None and voxel_pitch <= 0:
             raise ValueError("voxel_pitch must be positive.")
 
+        logger.info("Thickening in mm, units verified")
         pitch = voxel_pitch or max(min_thickness_mm / 2.0, 0.5)
         steps = max(int(np.ceil(min_thickness_mm / pitch)), 1)
         logger.info("Thickening walls via voxel dilation (pitch={:.3f}, steps={})", pitch, steps)
