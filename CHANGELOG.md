@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Expanded user-facing README with installation, usage, and troubleshooting details.
+- Roadmap with versioned planning and status markers.
+- New backlog ideas for preview mode and batch CLI processing.
 - Initial project governance and documentation scaffolding.
 - Revit built-in categories reference and user guide drafts.
 - Configuration schemas and presets for export pipeline.
