@@ -21,6 +21,8 @@ import numpy as np
 import trimesh
 from loguru import logger
 
+from bimto3dprint.integrations.ifc_env_extractor import IfcEnvExtractorRunner
+
 
 DEFAULT_CATEGORIES: tuple[str, ...] = (
     "IfcWall",
@@ -57,9 +59,14 @@ class ShellExtractor:
             raise FileNotFoundError(f"IFC file not found: {path}")
 
         logger.info("Opening IFC file: {}", path)
+        if "tudelft_extractor" in config:
+            return self._extract_with_tudelft(path, config["tudelft_extractor"])
+
         model = ifcopenshell.open(str(path))
 
-        categories: Sequence[str] = config.get("categories", DEFAULT_CATEGORIES)
+        categories: Sequence[str] | Mapping[str, Any] = config.get("categories", DEFAULT_CATEGORIES)
+        if isinstance(categories, Mapping):
+            categories = categories.get("include", DEFAULT_CATEGORIES)
         mesh_list = self._collect_meshes(model, categories)
         if not mesh_list:
             raise ValueError("No geometry extracted from IFC elements.")
@@ -192,3 +199,31 @@ class ShellExtractor:
         envelope = voxel_grid.marching_cubes
         envelope.remove_unreferenced_vertices()
         return envelope
+
+    def _extract_with_tudelft(self, ifc_path: Path, config: Mapping[str, Any]) -> trimesh.Trimesh:
+        extractor_path = Path(config.get("extractor_path", ""))
+        output_dir = Path(config.get("output_dir", ifc_path.parent / "tudelft_envelope"))
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        runner = IfcEnvExtractorRunner(extractor_path)
+        lod = float(config.get("lod", 2.2))
+        voxel_size = float(config.get("voxel_size", 1.0))
+        threads = int(config.get("threads", 8))
+
+        config_payload = runner.build_config(
+            ifc_path=ifc_path,
+            output_dir=output_dir,
+            lods=[lod],
+            voxel_size=voxel_size,
+            threads=threads,
+        )
+        config_path = output_dir / "envelope_config.json"
+        runner.write_config(config_payload, config_path)
+        runner.run(config_path)
+
+        obj_path = runner.find_output_obj(output_dir)
+        mesh = trimesh.load(obj_path, force="mesh")
+        if not isinstance(mesh, trimesh.Trimesh):  # pragma: no cover - defensive
+            raise ValueError(f"Extractor output is not a mesh: {obj_path}")
+        logger.info("Loaded TU Delft envelope mesh: vertices={}, faces={}", len(mesh.vertices), len(mesh.faces))
+        return mesh
