@@ -67,7 +67,10 @@ class IFCLoader:
         self.model = ifcopenshell.open(str(ifc_path))
         return self.model
 
-    def get_elements_by_categories(self, categories: Iterable[str]) -> list[ifcopenshell.entity_instance]:
+    def get_elements_by_categories(
+        self,
+        categories: Iterable[str] | Mapping[str, Sequence[str]],
+    ) -> list[ifcopenshell.entity_instance]:
         """Collect IFC elements by category names.
 
         Args:
@@ -82,6 +85,22 @@ class IFCLoader:
         if self.model is None:
             raise ValueError("IFC model is not loaded. Call load_ifc() first.")
 
+        include, exclude = self._normalize_categories(categories)
+        included = self._collect_elements(include)
+        if not exclude:
+            return included
+
+        excluded_ids = {element.id() for element in self._collect_elements(exclude)}
+        filtered = [element for element in included if element.id() not in excluded_ids]
+        logger.info(
+            "Filtered elements: included={}, excluded={}, result={}",
+            len(included),
+            len(excluded_ids),
+            len(filtered),
+        )
+        return filtered
+
+    def _collect_elements(self, categories: Iterable[str]) -> list[ifcopenshell.entity_instance]:
         elements: list[ifcopenshell.entity_instance] = []
         for category in categories:
             ifc_types = self.category_map.get(category, (category,))
@@ -106,14 +125,16 @@ class IFCLoader:
         try:
             shape = ifcopenshell.geom.create_shape(self._settings, element)
         except Exception as exc:  # noqa: BLE001 - IFC geometry failures are expected
-            logger.warning("Failed to create geometry for {}: {}", element.GlobalId, exc)
+            element_id = getattr(element, "GlobalId", "unknown")
+            logger.warning("Failed to create geometry for {}: {}", element_id, exc)
             return None
 
         geometry = shape.geometry
         vertices = np.array(geometry.verts, dtype=float).reshape(-1, 3)
         faces = np.array(geometry.faces, dtype=int).reshape(-1, 3)
         if len(vertices) == 0 or len(faces) == 0:
-            logger.warning("Empty geometry for {}", element.GlobalId)
+            element_id = getattr(element, "GlobalId", "unknown")
+            logger.warning("Empty geometry for {}", element_id)
             return None
 
         mesh = trimesh.Trimesh(vertices=vertices, faces=faces, process=False)
@@ -145,6 +166,22 @@ class IFCLoader:
         combined = trimesh.util.concatenate(meshes)
         logger.info("Combined mesh: vertices={}, faces={}", len(combined.vertices), len(combined.faces))
         return combined
+
+    def _normalize_categories(
+        self,
+        categories: Iterable[str] | Mapping[str, Sequence[str]],
+    ) -> tuple[list[str], list[str]]:
+        if isinstance(categories, Mapping):
+            include = list(categories.get("include", []))
+            exclude = list(categories.get("exclude", []))
+        else:
+            include = list(categories)
+            exclude = []
+
+        include = list(dict.fromkeys(include))
+        exclude = [category for category in dict.fromkeys(exclude) if category not in include]
+        logger.info("Normalized categories: include={}, exclude={}", len(include), len(exclude))
+        return include, exclude
 
 
 def load_ifc(path: Path | str) -> ifcopenshell.file:

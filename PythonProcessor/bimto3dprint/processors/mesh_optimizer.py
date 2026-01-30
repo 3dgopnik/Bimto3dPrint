@@ -23,11 +23,12 @@ from loguru import logger
 class MeshOptimizer:
     """Optimize meshes for 3D printing workflows."""
 
-    def remove_internal_geometry(self, mesh: trimesh.Trimesh) -> trimesh.Trimesh:
+    def remove_internal_geometry(self, mesh: trimesh.Trimesh, voxel_pitch: float | None = None) -> trimesh.Trimesh:
         """Remove internal faces, keeping only the outer shell.
 
         Args:
             mesh: Input mesh.
+            voxel_pitch: Optional voxel pitch in mesh units.
 
         Returns:
             Mesh approximating the external shell.
@@ -35,8 +36,11 @@ class MeshOptimizer:
         if mesh.is_empty:
             raise ValueError("Input mesh is empty.")
 
+        if voxel_pitch is not None and voxel_pitch <= 0:
+            raise ValueError("voxel_pitch must be positive.")
+
         max_extent = float(np.max(mesh.extents))
-        pitch = max(max_extent / 200.0, 1.0)
+        pitch = voxel_pitch or max(max_extent / 200.0, 1.0)
         logger.info("Removing internal geometry via voxel shell (pitch={:.3f})", pitch)
 
         voxel_grid = mesh.voxelized(pitch)
@@ -45,12 +49,18 @@ class MeshOptimizer:
         shell.remove_unreferenced_vertices()
         return shell
 
-    def thicken_walls(self, mesh: trimesh.Trimesh, min_thickness_mm: float = 2.0) -> trimesh.Trimesh:
+    def thicken_walls(
+        self,
+        mesh: trimesh.Trimesh,
+        min_thickness_mm: float = 2.0,
+        voxel_pitch: float | None = None,
+    ) -> trimesh.Trimesh:
         """Thicken thin walls using voxel dilation.
 
         Args:
             mesh: Input mesh.
             min_thickness_mm: Minimum wall thickness in millimeters.
+            voxel_pitch: Optional voxel pitch in mesh units.
 
         Returns:
             Thickened mesh.
@@ -61,7 +71,10 @@ class MeshOptimizer:
         if mesh.is_empty:
             raise ValueError("Input mesh is empty.")
 
-        pitch = max(min_thickness_mm / 2.0, 0.5)
+        if voxel_pitch is not None and voxel_pitch <= 0:
+            raise ValueError("voxel_pitch must be positive.")
+
+        pitch = voxel_pitch or max(min_thickness_mm / 2.0, 0.5)
         steps = max(int(np.ceil(min_thickness_mm / pitch)), 1)
         logger.info("Thickening walls via voxel dilation (pitch={:.3f}, steps={})", pitch, steps)
 
@@ -116,11 +129,12 @@ class MeshOptimizer:
 
         return repaired
 
-    def validate_for_printing(self, mesh: trimesh.Trimesh) -> dict[str, Any]:
+    def validate_for_printing(self, mesh: trimesh.Trimesh, sample_count: int = 250) -> dict[str, Any]:
         """Validate mesh readiness for printing.
 
         Args:
             mesh: Input mesh.
+            sample_count: Number of samples for wall thickness estimation.
 
         Returns:
             Dictionary with validation metrics.
@@ -129,7 +143,7 @@ class MeshOptimizer:
             raise ValueError("Input mesh is empty.")
 
         has_correct_normals = bool(mesh.is_winding_consistent)
-        min_wall_thickness = self._estimate_min_wall_thickness(mesh)
+        min_wall_thickness = self._estimate_min_wall_thickness(mesh, sample_count=sample_count)
         bounds = tuple(float(value) for value in mesh.bounds.reshape(-1))
         volume = float(mesh.volume) if mesh.is_volume else 0.0
 
@@ -143,7 +157,36 @@ class MeshOptimizer:
         logger.info("Validation report: {}", report)
         return report
 
-    def _estimate_min_wall_thickness(self, mesh: trimesh.Trimesh) -> float:
-        if mesh.edges_unique_length.size == 0:
+    def _estimate_min_wall_thickness(self, mesh: trimesh.Trimesh, sample_count: int = 250) -> float:
+        if sample_count <= 0:
+            raise ValueError("sample_count must be positive.")
+
+        if mesh.faces.size == 0:
             return 0.0
-        return float(np.min(mesh.edges_unique_length))
+
+        points, face_indices = mesh.sample(sample_count, return_index=True)
+        normals = mesh.face_normals[face_indices]
+        epsilon = float(max(np.max(mesh.extents) * 1e-6, 1e-6))
+        origins = points - normals * epsilon
+        directions = -normals
+
+        try:
+            locations, ray_index, _ = mesh.ray.intersects_location(
+                origins,
+                directions,
+                multiple_hits=False,
+            )
+        except Exception as exc:  # noqa: BLE001 - fallback when ray engine is unavailable
+            logger.warning("Ray-based thickness estimation failed: {}", exc)
+            if mesh.edges_unique_length.size == 0:
+                return 0.0
+            return float(np.min(mesh.edges_unique_length))
+
+        if len(locations) == 0:
+            return 0.0
+
+        distances = np.linalg.norm(locations - origins[ray_index], axis=1)
+        distances = distances[distances > epsilon]
+        if distances.size == 0:
+            return 0.0
+        return float(np.min(distances))
