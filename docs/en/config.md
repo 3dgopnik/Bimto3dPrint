@@ -51,3 +51,7 @@
 ## Notes
 - Category names must match `BuiltInCategory`.
 - `conditional_include` requires parameter/geometry filters.
+
+## Schemas and presets
+- Schemas: `Config/Schemas/category_filter_schema.json`, `Config/Schemas/export_settings_schema.json`.
+- Presets: `Config/Presets/` (shell_only, shell_with_structure, full_exterior, simple_box).

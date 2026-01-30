@@ -8,3 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Initial project governance and documentation scaffolding.
+- Revit built-in categories reference and user guide drafts.
+- Configuration schemas and presets for export pipeline.
+- C# Revit plugin and Python processor scaffolding.
+- Pipeline runner script and test scenario descriptions.

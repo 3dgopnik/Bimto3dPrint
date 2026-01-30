@@ -1,0 +1,26 @@
+<Window x:Class="Bimto3dPrint.UI.ExportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bimto3dPrint Export" Height="420" Width="640">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock FontSize="16" FontWeight="Bold" Text="Export settings" />
+
+        <StackPanel Grid.Row="1" Margin="0,12,0,12" Spacing="8">
+            <TextBlock Text="Configuration preset" />
+            <ComboBox x:Name="PresetComboBox" />
+            <TextBlock Text="Output format" />
+            <ComboBox x:Name="OutputFormatComboBox" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button x:Name="CancelButton" Content="Cancel" Width="90" />
+            <Button x:Name="ExportButton" Content="Export" Width="90" />
+        </StackPanel>
+    </Grid>
+</Window>

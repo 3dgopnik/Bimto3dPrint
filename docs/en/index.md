@@ -52,3 +52,7 @@ Below is the baseline category list for filtering. It should be refined per proj
 - **Parameters**: `Wall.Function == Exterior`, structural/exterior parameters.
 - **Geometry**: proximity to building bounding box.
 - **Environment**: elements that interface with external spaces.
+
+## Documentation
+- [Built-In categories reference](reference/revit_builtin_categories.md)
+- [User guide](user_guide.md)

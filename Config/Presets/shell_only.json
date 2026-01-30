@@ -1,0 +1,50 @@
+{
+  "version": "0.1.0",
+  "categories": {
+    "include": [
+      "BuiltInCategory.OST_Walls",
+      "BuiltInCategory.OST_Roofs",
+      "BuiltInCategory.OST_Floors",
+      "BuiltInCategory.OST_CurtainWallPanels",
+      "BuiltInCategory.OST_CurtainWallMullions",
+      "BuiltInCategory.OST_StructuralWall"
+    ],
+    "exclude": [
+      "BuiltInCategory.OST_Doors",
+      "BuiltInCategory.OST_Windows",
+      "BuiltInCategory.OST_Spaces",
+      "BuiltInCategory.OST_MechanicalEquipment",
+      "BuiltInCategory.OST_PlumbingFixtures",
+      "BuiltInCategory.OST_Furniture"
+    ]
+  },
+  "parameterFilters": [],
+  "geometryRules": {
+    "minVolume": 0.01,
+    "minArea": 0.05,
+    "skipZeroThickness": true
+  },
+  "export": {
+    "ifc": {
+      "fileName": "shell_only.ifc",
+      "exportBaseQuantities": false,
+      "ifcVersion": "IFC4",
+      "useActiveViewGeometry": true,
+      "exportLinkedFiles": false
+    },
+    "simplification": {
+      "targetTriangleCount": 150000,
+      "maxDeviation": 0.01,
+      "mergeCoplanarFaces": true,
+      "removeSmallParts": true,
+      "minPartVolume": 0.001
+    },
+    "printing": {
+      "scale": 0.01,
+      "wallThickness": 1.2,
+      "minFeatureSize": 0.6,
+      "hollow": true,
+      "outputFormat": "stl"
+    }
+  }
+}

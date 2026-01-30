@@ -1,0 +1,50 @@
+{
+  "version": "0.1.0",
+  "categories": {
+    "include": [
+      "BuiltInCategory.OST_Walls",
+      "BuiltInCategory.OST_Roofs",
+      "BuiltInCategory.OST_Floors",
+      "BuiltInCategory.OST_StructuralColumns",
+      "BuiltInCategory.OST_StructuralFraming",
+      "BuiltInCategory.OST_StructuralWall",
+      "BuiltInCategory.OST_StructuralFloor"
+    ],
+    "exclude": [
+      "BuiltInCategory.OST_Doors",
+      "BuiltInCategory.OST_Windows",
+      "BuiltInCategory.OST_Furniture",
+      "BuiltInCategory.OST_PlumbingFixtures",
+      "BuiltInCategory.OST_MechanicalEquipment"
+    ]
+  },
+  "parameterFilters": [],
+  "geometryRules": {
+    "minVolume": 0.01,
+    "minArea": 0.05,
+    "skipZeroThickness": true
+  },
+  "export": {
+    "ifc": {
+      "fileName": "shell_with_structure.ifc",
+      "exportBaseQuantities": true,
+      "ifcVersion": "IFC4",
+      "useActiveViewGeometry": true,
+      "exportLinkedFiles": false
+    },
+    "simplification": {
+      "targetTriangleCount": 200000,
+      "maxDeviation": 0.01,
+      "mergeCoplanarFaces": true,
+      "removeSmallParts": true,
+      "minPartVolume": 0.001
+    },
+    "printing": {
+      "scale": 0.01,
+      "wallThickness": 1.2,
+      "minFeatureSize": 0.6,
+      "hollow": true,
+      "outputFormat": "stl"
+    }
+  }
+}
