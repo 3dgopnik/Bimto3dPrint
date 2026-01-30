@@ -10,17 +10,61 @@ from typing import Any
 
 from loguru import logger
 
+from bimto3dprint.utils.ifc_schema import detect_ifc_schema
+
 
 @dataclass
 class IfcEnvExtractorRunner:
     """Run the TU Delft IFC envelope extractor executable."""
 
     extractor_path: Path
+    resolved_extractor_path: Path | None = None
 
     def __post_init__(self) -> None:
         self.extractor_path = Path(self.extractor_path)
         if not self.extractor_path.exists():
             raise FileNotFoundError(f"Extractor executable not found: {self.extractor_path}")
+        if not (self.extractor_path.is_file() or self.extractor_path.is_dir()):
+            raise ValueError(f"Extractor path must be a file or directory: {self.extractor_path}")
+
+    def _resolve_extractor_path(self, ifc_path: Path) -> Path:
+        if self.extractor_path.is_file():
+            self.resolved_extractor_path = self.extractor_path
+            return self.extractor_path
+
+        schema = detect_ifc_schema(ifc_path)
+        logger.info("Detected IFC schema: {}", schema)
+
+        schema_patterns = {
+            "IFC2X3": "ifc2x3",
+            "IFC4": "ifc4",
+            "IFC4X3": "ifc4x3",
+        }
+        token = schema_patterns[schema]
+        candidates = [
+            path
+            for path in self.extractor_path.glob("*.exe")
+            if token in path.name.lower()
+        ]
+        if schema == "IFC4":
+            candidates = [path for path in candidates if "ifc4x3" not in path.name.lower()]
+
+        if not candidates:
+            raise RuntimeError(
+                "Could not find extractor exe for "
+                f"{schema} in {self.extractor_path}. "
+                f"Expected name like '*{token}*.exe'."
+            )
+
+        chosen = sorted(candidates, key=lambda path: path.name.lower())[0]
+        logger.info(
+            "Auto-selected TU Delft extractor for IFC schema: {} \u2192 {}",
+            schema,
+            chosen.name,
+        )
+        logger.info("Selected extractor exe path: {}", chosen)
+        self.resolved_extractor_path = chosen
+        return chosen
 
     def build_config(
         self,
@@ -54,11 +98,12 @@ class IfcEnvExtractorRunner:
         output_dir = Path(output_dir)
         lods = lods or [2.2]
 
+        resolved_extractor = self._resolve_extractor_path(ifc_path)
         logger.info(
             "TU Delft extractor settings: lods={}, voxel_size={}, exe_path={}, output_dir={}",
             lods,
             voxel_size,
-            self.extractor_path,
+            resolved_extractor,
             output_dir,
         )
         config: dict[str, Any] = {
@@ -113,11 +158,17 @@ class IfcEnvExtractorRunner:
             json.dump(config, file, indent=2, ensure_ascii=False)
         logger.info("Saved extractor config: {}", config_path)
 
-    def run(self, config_path: Path, timeout_sec: int = 3600) -> CompletedProcess[str]:
+    def run(
+        self,
+        config_path: Path,
+        ifc_path: Path,
+        timeout_sec: int = 3600,
+    ) -> CompletedProcess[str]:
         """Run the extractor executable with a configuration file.
 
         Args:
             config_path: Path to the JSON configuration.
+            ifc_path: Path to the IFC file (used for schema detection when needed).
             timeout_sec: Timeout in seconds.
 
         Returns:
@@ -128,10 +179,11 @@ class IfcEnvExtractorRunner:
             TimeoutError: If the process times out.
         """
         config_path = Path(config_path)
-        logger.info("Running extractor: {} {}", self.extractor_path, config_path)
+        resolved_extractor = self._resolve_extractor_path(ifc_path)
+        logger.info("Running extractor: {} {}", resolved_extractor, config_path)
         try:
             completed = subprocess.run(
-                [str(self.extractor_path), str(config_path)],
+                [str(resolved_extractor), str(config_path)],
                 capture_output=True,
                 text=True,
                 timeout=timeout_sec,
@@ -155,7 +207,7 @@ class IfcEnvExtractorRunner:
         return completed
 
     def find_output_obj(self, output_dir: Path) -> Path:
-        """Find the first OBJ file produced by the extractor.
+        """Find the most recent OBJ file produced by the extractor.
 
         Args:
             output_dir: Directory where outputs are expected.
@@ -167,10 +219,14 @@ class IfcEnvExtractorRunner:
             FileNotFoundError: If no OBJ files were found.
         """
         output_dir = Path(output_dir)
-        for obj_path in output_dir.rglob("*.obj"):
-            logger.info("Found OBJ output: {}", obj_path)
-            return obj_path
+        objs = list(output_dir.rglob("*.obj"))
+        if not objs:
+            raise FileNotFoundError(
+                "OBJ output not found: check Output format, output path, and permissions."
+            )
 
-        raise FileNotFoundError(
-            "OBJ output not found: check Output format, output path, and permissions."
-        )
+        chosen = max(objs, key=lambda path: path.stat().st_mtime)
+        mtime = chosen.stat().st_mtime
+        logger.info("Found {} OBJ files under {}", len(objs), output_dir)
+        logger.info("Selected OBJ output: {} (mtime={})", chosen, mtime)
+        return chosen

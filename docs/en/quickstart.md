@@ -4,7 +4,7 @@
 
 1. Install Python Processor dependencies (see `PythonProcessor/README.md`).
 2. Export an IFC file from Revit.
-3. Ensure you have the correct TU Delft extractor exe for your IFC schema.
+3. Prepare the TU Delft extractor exe (single file or a directory with IFC2x3/IFC4/IFC4x3 builds).
 4. Run the pipeline:
 
 ```bash
@@ -13,7 +13,7 @@ bimto3dprint process input.ifc \
   --output out/model.stl \
   --format stl \
   --use-tudelft-extractor \
-  --extractor-path /path/Ifc_Envelope_Extractor_ifc4.exe
+  --extractor-path /path/to/tudelft_exe_dir
 ```
 
 5. Adjust wall thickening if needed (`--min-wall-mm` or `--no-thicken`).

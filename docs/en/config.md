@@ -64,7 +64,7 @@ When using the CLI you can add a `tudelft_extractor` block to the configuration:
 ```json
 {
   "tudelft_extractor": {
-    "extractor_path": "/path/Ifc_Envelope_Extractor_ifc4.exe",
+    "extractor_path": "/path/to/tudelft_exe_dir",
     "lod": 2.2,
     "voxel_size": 1.0,
     "threads": 8
@@ -72,7 +72,9 @@ When using the CLI you can add a `tudelft_extractor` block to the configuration:
 }
 ```
 
-The `extractor_path` must point to the exe that matches the IFC schema (IFC2x3 / IFC4 / IFC4x3).
+The `extractor_path` can point to a specific exe or to a directory with multiple exes.
+When a directory is provided, the IFC schema is detected automatically and the matching exe is selected by name
+(`*ifc2x3*.exe`, `*ifc4*.exe`, `*ifc4x3*.exe`).
 
 ## Wall thickening control
 

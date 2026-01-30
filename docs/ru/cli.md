@@ -10,7 +10,7 @@ bimto3dprint process input.ifc \
   --output out/model.stl \
   --format stl \
   --use-tudelft-extractor \
-  --extractor-path /path/Ifc_Envelope_Extractor_ifc4.exe \
+  --extractor-path /path/to/tudelft_exe_dir \
   --lod 2.2 \
   --voxel 1.0 \
   --threads 8
@@ -44,7 +44,9 @@ bimto3dprint list-presets
 ## Параметры TU Delft IfcEnvelopeExtractor
 
 - `--use-tudelft-extractor` — включить внешний извлекатель оболочки.
-- `--extractor-path` — путь к exe для нужной схемы IFC (IFC2x3/IFC4/IFC4x3).
+- `--extractor-path` — путь к exe или к директории с несколькими exe (IFC2x3/IFC4/IFC4x3).
+
+Если указан каталог, CLI автоматически выберет exe по схеме IFC и залогирует выбранный файл.
 - `--lod` — требуемый уровень детализации (LoD).
 - `--voxel` — размер вокселя.
 - `--threads` — число потоков.

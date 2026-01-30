@@ -3,7 +3,8 @@
 ## TU Delft extractor does not create OBJ
 
 - Ensure you are using the exe that matches the IFC schema (IFC2x3 / IFC4 / IFC4x3).
-- Confirm `--extractor-path` points to a valid executable.
+- If you pass a directory, ensure it contains the exe for your IFC schema (IFC2x3 / IFC4 / IFC4x3).
+- If you pass a file, confirm `--extractor-path` points to a valid executable.
 - Verify the output directory is writable.
 - Make sure OBJ output is enabled (it is on by default with `--use-tudelft-extractor`).
 
@@ -19,7 +20,7 @@
 
 ## "TU Delft extractor returned invalid mesh"
 
-- Confirm the extractor exe matches the IFC schema.
+- Confirm the extractor exe matches the IFC schema (or that auto-selection picked the correct one).
 - Review LoD and `--voxel`: overly coarse voxel sizes can yield empty envelopes.
 - Ensure the source IFC contains the building envelope geometry.
 

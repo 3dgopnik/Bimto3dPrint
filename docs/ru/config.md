@@ -64,7 +64,7 @@
 ```json
 {
   "tudelft_extractor": {
-    "extractor_path": "/path/Ifc_Envelope_Extractor_ifc4.exe",
+    "extractor_path": "/path/to/tudelft_exe_dir",
     "lod": 2.2,
     "voxel_size": 1.0,
     "threads": 8
@@ -72,7 +72,9 @@
 }
 ```
 
-Опция `extractor_path` должна указывать на exe, соответствующий схеме IFC (IFC2x3 / IFC4 / IFC4x3).
+Опция `extractor_path` может указывать на конкретный exe или на директорию с несколькими exe.
+При указании директории схема IFC определяется автоматически, а подходящий exe выбирается по имени
+(`*ifc2x3*.exe`, `*ifc4*.exe`, `*ifc4x3*.exe`).
 
 ## Управление утолщением стен
 
