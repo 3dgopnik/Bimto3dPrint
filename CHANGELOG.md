@@ -13,3 +13,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - C# Revit plugin and Python processor scaffolding.
 - Pipeline runner script and test scenario descriptions.
 - IFC_BuildingEnvExtractor analysis reference and shell extraction implementation.
+- IFC loader utilities and mesh optimizer workflow for the Python processor.
+- IFC loader now supports include/exclude categories and improved mesh thickness estimation.
