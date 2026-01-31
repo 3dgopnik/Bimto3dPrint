@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ConfigManager with preset discovery and validation for the Python pipeline.
 - Revit IFC export flow with selectable presets, IFC version, output folder, and optional Python pipeline runner.
 - IFC export service, Python runner settings template, and addin template generation during build.
+- End-user and developer batch scripts for install, build, clean, dev install, and uninstall flows.
+- Final Revit addin file for direct installation alongside the DLL.
 - Python pipeline settings template for configurable Python/TU Delft paths.
 - Version-pinned Python requirements and dev pytest optional dependency.
 - Updated documentation for manual IFC and one-click Revit workflows plus preset type guidance.
