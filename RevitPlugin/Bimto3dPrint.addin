@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Command">
+    <Name>Bimto3dPrint</Name>
+    <Assembly>Bimto3dPrint.dll</Assembly>
+    <AddInId>e14d9343-679e-422b-8874-a34771a473b1</AddInId>
+    <FullClassName>Bimto3dPrint.Commands.ExportShellCommand</FullClassName>
+    <Text>Export for 3D Print</Text>
+    <Description>Экспорт оболочки для 3D печати / Export building shell for 3D printing.</Description>
+    <VendorId>BIM3D</VendorId>
+    <VendorDescription>Bimto3dPrint — инструменты экспорта для 3D печати / Bimto3dPrint export tools for 3D printing.</VendorDescription>
+  </AddIn>
+</RevitAddIns>
